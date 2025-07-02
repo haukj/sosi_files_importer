@@ -28,8 +28,8 @@ This file is part of SosiImporter, an addon to import SOSI files containing
 bl_info = {
     "name": "SosiImporter",
     "author": "Jonny Normann Skålvik",
-    "version": (1, 2, 1),
-    "blender": (2, 93, 0),
+    "version": (1, 3, 0),
+    "blender": (4, 0, 0),
     "location": "File > Import > SosiImporter",
     "description": "Import objects from SOSI files (.sos)",
     "warning": "",
@@ -90,7 +90,7 @@ def register():
 # -----------------------------------------------------------------------------
 
 def unregister():
-    bpy.utils.unregister_class(sosimp.SosiPreferences)
+    bpy.utils.unregister_class(sosimp.SosiImporterPreferences)
     bpy.utils.unregister_class(ImportSOSIData)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
 
