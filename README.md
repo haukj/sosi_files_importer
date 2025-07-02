@@ -6,11 +6,11 @@ This is an addon for Blender to allow imports of SOSI files (with extension .sos
 
 The add-on was originally written in C++ for Sketchup under 64-bit Windows10. For Blender the appropriate C++ code was compiled into a Windows only DLL and called from Python.
 
-For non-Windows platforms the repository now includes a simple Python fallback parser based on the GDAL library. When the DLL cannot be loaded, the addon will try to use GDAL to read SOSI files. The GDAL Python bindings must be installed separately (for instance with `brew install gdal` on macOS).
+For non-Windows platforms the repository now includes a simple Python fallback parser based on the GDAL library. When the DLL cannot be loaded, the addon will try to use GDAL to read SOSI files. The GDAL Python bindings must be installed separately (for instance with `brew install gdal` on macOS, which works on Apple M-series CPUs).
 
 The *scripts/sosi_files_importer/* directory contains the sources for the Python code as well as the original DLL placed in *bin/x64/*.
 
-Currently, this addon has only been tested with Blender 3.0 and the experimental Blender 3.2 under Windows10, but the GDAL parser has been verified on Linux.
+Currently, this addon has only been tested with Blender 3.0 and the experimental Blender 3.2 under Windows10. The GDAL based fallback has been verified on Linux and macOS on Apple M2 hardware.
 
 ![Example import](/images/ImportExample_0.png)
 
