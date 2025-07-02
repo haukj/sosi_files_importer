@@ -341,3 +341,4 @@ def arc_pts_segments_3D(arc_pts, num_splits):
     else:
         arc_pts_nonhorz = arc_pts_horz
     return arc_pts_nonhorz
+

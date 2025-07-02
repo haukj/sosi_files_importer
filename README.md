@@ -20,21 +20,18 @@ While certainly possible, it is not recommended to install the addon using the s
 
 If building from source, a small helper script is included that creates the appropriate zip archive. Run `python3 make_addon_zip.py` from the repository root and install the produced `sosi_files_importer.zip` in Blender.
 
+
 ## Usage
 
 Initially, the importer has to be enabled via the *Edit/preferences* dialog. It can be found as *Import-Export: SosiImporter*.
 
 ![Demo import 0](/images/Importing_0.png)
 
-Run the importer from the *File/Import/Import SOSI Data* menu item.
+Run the importer from the *File/Import/Import SOSI Data* menu item. A file selector will appear allowing you to choose one or more `.sos` files.
 
 ![Demo import 1](/images/Importing_1.png)
 
-The importer will then open a file selection dialog expecting a .txt file with a Reference coordinate specification. This coordinate is provided to map the SOSI file 3D data to a region near the Blender coordinate origin. Remember that SOSI data can be located thousands of kilometers away from the origin, a situation Blender - as well as other 3D applications - is not meant to handle. Please observe that Blender has a *clip-end* setting to cut off geometry which is located further from the origin than specified by this setting.
-
-Thereafter the user is asked for one or more SOSI files. Multiple files can be selected in the dialog.
-
-The appropriate SOSI files are then parsed, one by one. For every selected file a dialog will open and show all SOSI element tags present. The user can choose to include/exclude any tags appropriate for the particular import. Default is inclusion of all element tags.
+The selected SOSI files are parsed one by one and the geometry is added to the current scene. You may also bypass the dialog by setting the environment variable `SOSI_FILES` to a colon-separated list of file paths before starting Blender.
 
 When the GDAL fallback is used the file dialogs are unavailable. Instead, set the `SOSI_FILES` environment variable to a list of file paths (separated by `:`) before starting Blender.
 
@@ -49,7 +46,7 @@ Thus, it is a good idea to open the Blender *System Console* before doing any im
 
 ## Example .sos file
 
-In order to verify that an addon installation is working properly, the sources also include an example .sos file together with an appropriate reference coordinate file. The .sos file contains only rudimentory data, but is a perfectly valid SOSI file.
+In order to verify that an add-on installation is working properly, the sources also include an example `.sos` file. A matching reference coordinate file from earlier releases is included but no longer required. The `.sos` file contains only rudimentary data, but is a perfectly valid SOSI file.
 
 The example files can be found in the test_data directory:
 
