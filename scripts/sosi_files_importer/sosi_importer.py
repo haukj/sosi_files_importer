@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Copyright © 2022 Jonny Normann Skålvik
 
@@ -28,6 +27,7 @@ import bpy
 import os
 import numpy as np
 import logging
+import platform
 try:
     from osgeo import ogr  # noqa
     GDAL_AVAILABLE = True
@@ -38,7 +38,6 @@ from . import sosi_log_helper as sologhlp
 from . import sosi_geom_helper as sogeohlp
 
 # -----------------------------------------------------------------------------
-
 RES_SOSI_GENERAL_ERROR	    = 0x0001
 RES_SOSI_DIMENSION_MISMATCH = 0x0010
 RES_SOSI_LOOP_UNCLOSED      = 0x0100
@@ -270,12 +269,63 @@ def do_imports(file_list=None):
         return 0
     from . import sosi_gdal_parser
     if file_list is None:
+
+    env_files = os.environ.get('SOSI_FILES')
+    if env_files:
+        file_list = env_files.split(os.pathsep)
+    else:
+        pkg_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        file_list = [os.path.join(pkg_dir, 'test_data', 'SomeBorders.sos')]
+    nfiles = sosi_gdal_parser.process_sosi_files(file_list, my_cb_func)
+
+        rel_path = soset.REL_DLL_PATH
+        dll_path = get_full_path(rel_path)
+
+    use_dll = platform.system() == 'Windows' and os.path.exists(dll_path)
+
+    #Prototype callback
+    callback_type = ctypes.CFUNCTYPE(c_int, c_int, c_int, c_int, c_char_p, c_int, c_int, ctypes.POINTER(c_double), c_char_p)
+    my_callback = callback_type(my_cb_func)  # Use a variable to avoid garbage collection
+
+    if use_dll:
+        my_dll = ctypes.WinDLL(dll_path)
+
+        # Prototype get_SosiInputObjects()
+        my_dll.get_SosiInputObjects.argtypes = [ctypes.POINTER(c_double), ctypes.POINTER(c_double), ctypes.POINTER(c_double), ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_int, ctypes.c_double]
+        my_dll.get_SosiInputObjects.restype = c_int
+
+        #Prototype process_SosiFiles()
+        my_dll.process_SosiFiles.argtypes = [c_int, c_void_p]
+        my_dll.process_SosiFiles.restype = c_int
+    
+    bldscale = 1.0  # bldhlp.LocalUnits.scene_unit_factor() # STRANGE??? Blender takes numbers as m always???
+    #bldhlp.setMyEnvironment()   # TEMPORARY to set my local environment
+
+    peasting = (ctypes.c_double)()
+    pnorthing = (ctypes.c_double)()
+    punity = (ctypes.c_double)()
+    clip_end = bldhlp.SceneSettings.get_clip_end()
+    unit_system = bldhlp.UnitSettings.scene_unit_system_get()
+    unit_length = bldhlp.UnitSettings.scene_unit_length_get()
+    unit_scale = bldhlp.UnitSettings.scene_unit_scale_get()
+
+    if use_dll:
+        nfiles = my_dll.get_SosiInputObjects(peasting, pnorthing, punity, bldscale, clip_end, unit_system, unit_length, unit_scale)
+        if nfiles > 0:
+            my_dll.process_SosiFiles(nfiles, my_callback)
+        lib_handle = my_dll._handle
+        free_library(lib_handle)
+    else:
+        if not GDAL_AVAILABLE:
+            logging.error('GDAL Python bindings not available')
+            return 0
+        from . import sosi_gdal_parser
         env_files = os.environ.get('SOSI_FILES')
         if env_files:
             file_list = env_files.split(os.pathsep)
         else:
             pkg_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
             file_list = [os.path.join(pkg_dir, 'test_data', 'SomeBorders.sos')]
-    nfiles = sosi_gdal_parser.process_sosi_files(file_list, my_cb_func)
+        nfiles = sosi_gdal_parser.process_sosi_files(file_list, my_cb_func)
 
     return nfiles

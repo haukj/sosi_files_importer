@@ -17,10 +17,10 @@ def main():
                     continue
                 path = os.path.join(root, fname)
                 arcname = os.path.relpath(path, PARENT_DIR)
+
                 zf.write(path, arcname)
     print(f'Created {OUTPUT_ZIP}')
 
 
 if __name__ == '__main__':
     main()
-
