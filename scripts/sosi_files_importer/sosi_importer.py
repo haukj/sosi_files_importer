@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Copyright © 2022 Jonny Normann Skålvik
 
@@ -26,12 +25,10 @@ This file is part of SosiImporter, an addon to import SOSI files containing
 
 import bpy
 import os
-import sys
 import numpy as np
-import ctypes
-from ctypes import wintypes
 import logging
 import platform
+
 try:
     from osgeo import ogr  # noqa
     GDAL_AVAILABLE = True
@@ -42,7 +39,6 @@ from . import sosi_log_helper as sologhlp
 from . import sosi_geom_helper as sogeohlp
 
 # -----------------------------------------------------------------------------
-
 RES_SOSI_GENERAL_ERROR	    = 0x0001
 RES_SOSI_DIMENSION_MISMATCH = 0x0010
 RES_SOSI_LOOP_UNCLOSED      = 0x0100
@@ -79,11 +75,6 @@ else:
 #import blender_helper as bldhlp
 #from sosi_importer import blender_helper as bldhlp # from directory sosi_importer
 
-c_int = ctypes.c_int
-c_int32 = ctypes.c_int32
-c_double = ctypes.c_double
-c_void_p = ctypes.c_void_p
-c_char_p = ctypes.c_char_p
 
 # -----------------------------------------------------------------------------
 
@@ -155,21 +146,6 @@ def coord_array_to_list(ndims, ncoords, ary):
     return coordList
 
 # -----------------------------------------------------------------------------
-
-def get_full_path(rel_path):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    head_path, tail_path = os.path.split(dir_path)
-    return os.path.join(head_path, rel_path)
-
-# -----------------------------------------------------------------------------
-
-def free_library(handle):
-    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
-    #kernel32.FreeLibrary.argtypes = [ctypes.wintypes.HMODULE]
-    #kernel32.FreeLibrary.restype = ctypes.wintypes.BOOL
-    kernel32.FreeLibrary.argtypes = [wintypes.HMODULE]
-    kernel32.FreeLibrary.restype = wintypes.BOOL
-    kernel32.FreeLibrary(handle)
 
 # -----------------------------------------------------------------------------
 
@@ -289,9 +265,18 @@ def do_imports():
     global top_parent
     top_parent = None
     
-    if soset.USE_DEBUG_DLL_PATH == True:
-        dll_path = soset.DEBUG_DLL_PATH
+    if not GDAL_AVAILABLE:
+        logging.error('GDAL Python bindings not available')
+        return 0
+    from . import sosi_gdal_parser
+    env_files = os.environ.get('SOSI_FILES')
+    if env_files:
+        file_list = env_files.split(os.pathsep)
     else:
+        pkg_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        file_list = [os.path.join(pkg_dir, 'test_data', 'SomeBorders.sos')]
+    nfiles = sosi_gdal_parser.process_sosi_files(file_list, my_cb_func)
+
         rel_path = soset.REL_DLL_PATH
         dll_path = get_full_path(rel_path)
 

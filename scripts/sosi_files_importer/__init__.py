@@ -28,8 +28,8 @@ This file is part of SosiImporter, an addon to import SOSI files containing
 bl_info = {
     "name": "SosiImporter",
     "author": "Jonny Normann Skålvik",
-    "version": (1, 2, 2),
-    "blender": (2, 93, 0),
+    "version": (1, 3, 0),
+    "blender": (4, 0, 0),
     "location": "File > Import > SosiImporter",
     "description": "Import objects from SOSI files (.sos)",
     "warning": "",
