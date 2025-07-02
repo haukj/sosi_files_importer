@@ -28,8 +28,8 @@ This file is part of SosiImporter, an addon to import SOSI files containing
 bl_info = {
     "name": "SosiImporter",
     "author": "Jonny Normann Skålvik",
-    "version": (1, 2, 1),
-    "blender": (2, 93, 0),
+    "version": (1, 3, 0),
+    "blender": (4, 0, 0),
     "location": "File > Import > SosiImporter",
     "description": "Import objects from SOSI files (.sos)",
     "warning": "",
@@ -38,6 +38,9 @@ bl_info = {
 }
 
 import os
+
+from bpy_extras.io_utils import ImportHelper
+from bpy.props import CollectionProperty, StringProperty
 
 # Determine if the code is running from within Blender
 env_blender = True
@@ -56,23 +59,29 @@ print('INFO: Blender environment:', env_blender)
 #else:
 #	from . import blender_temporary as bldtmp
 
-from . import sosi_importer as sosimp	
+from . import sosi_importer as sosimp
 #from . import blender_temporary as bldtmp
 
 # -----------------------------------------------------------------------------
 
-def main(context):
-    sosimp.do_imports()
+def main(file_paths=None):
+    sosimp.do_imports(file_paths)
 
 # -----------------------------------------------------------------------------
 
-class ImportSOSIData(bpy.types.Operator):
-    """Tooltip"""
+class ImportSOSIData(bpy.types.Operator, ImportHelper):
+    """Import SOSI data using GDAL."""
     bl_idname = "import_files.sosi_data"
     bl_label = "Import SOSI Data"
 
+    filename_ext = ".sos"
+    filter_glob: StringProperty(default="*.sos", options={'HIDDEN'})
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
+
     def execute(self, context):
-        main(context)
+        directory = os.path.dirname(self.filepath)
+        paths = [os.path.join(directory, f.name) for f in self.files] or [self.filepath]
+        main(paths)
         return {'FINISHED'}
         
 # -----------------------------------------------------------------------------
@@ -90,7 +99,7 @@ def register():
 # -----------------------------------------------------------------------------
 
 def unregister():
-    bpy.utils.unregister_class(sosimp.SosiPreferences)
+    bpy.utils.unregister_class(sosimp.SosiImporterPreferences)
     bpy.utils.unregister_class(ImportSOSIData)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
 

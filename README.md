@@ -4,11 +4,13 @@ Importer for SOSI files (containing 3D model data) used for geographical informa
 This is an addon for Blender to allow imports of SOSI files (with extension .sos). This addon is intended to handle the data normally contained in so-called 
 "digital maps" available from Norwegian municipal og governmental services.
 
-The add-on was originally written in C++ for Sketchup under 64-bit Windows10. For Blender the appropriate C++ code is compiled into a DLL and called from Python. Thus, this addon is only usable within the Windows environment.
+The add-on was originally written in C++ for Sketchup. Earlier releases used a Windows-only DLL for SOSI parsing but this has now been replaced by a cross-platform Python implementation.
 
-The *scripts/sosi_files_importer/* directory contains the sources for the Python code necessary to interface with the WinDLL. The DLL itself is placed in the sub directory *bin/x64/*.
+The importer relies on the GDAL library to read SOSI files. Ensure the GDAL Python bindings are installed (for instance with `brew install gdal` on macOS, which works on Apple M‑series CPUs).
 
-Currently, this addon has only been tested with Blender 3.0 and the experimental Blender 3.2 under Windows10.
+The *scripts/sosi_files_importer/* directory contains the Python sources for the add-on.
+
+Currently the add-on has been tested with Blender 4.0 on Linux and macOS running on Apple M2 hardware.
 
 ![Example import](/images/ImportExample_0.png)
 
@@ -16,21 +18,19 @@ Currently, this addon has only been tested with Blender 3.0 and the experimental
 
 While certainly possible, it is not recommended to install the addon using the sources directly. Instead, please use the packaged contents in the *Release page*. The packaged zip-file can be directly installed from the *Install...* button in the *Blender Preferences* dialog.
 
+If building from source, run `python3 make_addon_zip.py` from the repository root. The script creates `sosi_files_importer.zip` which can be installed directly from the *Install...* button inside Blender.
+
 ## Usage
 
 Initially, the importer has to be enabled via the *Edit/preferences* dialog. It can be found as *Import-Export: SosiImporter*.
 
 ![Demo import 0](/images/Importing_0.png)
 
-Run the importer from the *File/Import/Import SOSI Data* menu item.
+Run the importer from the *File/Import/Import SOSI Data* menu item. A file selector will appear allowing you to choose one or more `.sos` files.
 
 ![Demo import 1](/images/Importing_1.png)
 
-The importer will then open a file selection dialog expecting a .txt file with a Reference coordinate specification. This coordinate is provided to map the SOSI file 3D data to a region near the Blender coordinate origin. Remember that SOSI data can be located thousands of kilometers away from the origin, a situation Blender - as well as other 3D applications - is not meant to handle. Please observe that Blender has a *clip-end* setting to cut off geometry which is located further from the origin than specified by this setting.
-
-Thereafter the user is asked for one or more SOSI files. Multiple files can be selected in the dialog.
-
-The appropriate SOSI files are then parsed, one by one. For every selected file a dialog will open and show all SOSI element tags present. The user can choose to include/exclude any tags appropriate for the particular import. Default is inclusion of all element tags.
+The selected SOSI files are parsed one by one and the geometry is added to the current scene. You may also bypass the dialog by setting the environment variable `SOSI_FILES` to a colon-separated list of file paths before starting Blender.
 
 Please note that the importer uses standard Python logging mechanisms. One of these logging levels can be selected:
 - DEBUG
@@ -43,7 +43,7 @@ Thus, it is a good idea to open the Blender *System Console* before doing any im
 
 ## Example .sos file
 
-In order to verify that an addon installation is working properly, the sources also include an example .sos file together with an appropriate reference coordinate file. The .sos file contains only rudimentory data, but is a perfectly valid SOSI file.
+In order to verify that an add-on installation is working properly, the sources also include an example `.sos` file. A matching reference coordinate file from earlier releases is included but no longer required. The `.sos` file contains only rudimentary data, but is a perfectly valid SOSI file.
 
 The example files can be found in the test_data directory:
 

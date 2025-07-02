@@ -39,15 +39,7 @@ import logging
 #ACT_LOG_LEVEL = logging.DEBUG
 ACT_LOG_LEVEL = logging.INFO
 
-USE_DEBUG_DLL_PATH = False #  Must be False if installed from GitHub!
-
-# DLL path when file is installed by Blender
-REL_DLL_PATH = 'sosi_files_importer\\bin\\x64\\JoNoS_Blender_SosiLib.dll'
-
-# DLL path during DLL active development and debugging
-DEBUG_DLL_PATH = \
-    'F:\\MyProjects\\Projects\\TGT\\PY\\JoNoS_Blender_SosiLib\\' \
-    'x64\\Debug\\JoNoS_Blender_SosiLib.dll'
     
 # Number of segments for BUE drawing
 SOSI_ARC_SEGMENTS = 32 # 32 segments over angle Pi (half circle)
+
