@@ -28,11 +28,13 @@ import os
 import numpy as np
 import logging
 import platform
+
 try:
     from osgeo import ogr  # noqa
     GDAL_AVAILABLE = True
 except Exception:
     GDAL_AVAILABLE = False
+    
 from . import sosi_settings as soset
 from . import sosi_log_helper as sologhlp
 from . import sosi_geom_helper as sogeohlp
@@ -268,6 +270,7 @@ def do_imports(file_list=None):
         logging.error('GDAL Python bindings not available')
         return 0
     from . import sosi_gdal_parser
+
     if file_list is None:
 
     env_files = os.environ.get('SOSI_FILES')

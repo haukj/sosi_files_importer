@@ -18,7 +18,8 @@ Currently the add-on has been tested with Blender 4.0 on Linux and macOS running
 
 While certainly possible, it is not recommended to install the addon using the sources directly. Instead, please use the packaged contents in the *Release page*. The packaged zip-file can be directly installed from the *Install...* button in the *Blender Preferences* dialog.
 
-If building from source, run `python3 make_addon_zip.py` from the repository root. The script creates `sosi_files_importer.zip` which can be installed directly from the *Install...* button inside Blender.
+If building from source, a small helper script is included that creates the appropriate zip archive. Run `python3 make_addon_zip.py` from the repository root and install the produced `sosi_files_importer.zip` in Blender.
+
 
 ## Usage
 
@@ -31,6 +32,8 @@ Run the importer from the *File/Import/Import SOSI Data* menu item. A file selec
 ![Demo import 1](/images/Importing_1.png)
 
 The selected SOSI files are parsed one by one and the geometry is added to the current scene. You may also bypass the dialog by setting the environment variable `SOSI_FILES` to a colon-separated list of file paths before starting Blender.
+
+When the GDAL fallback is used the file dialogs are unavailable. Instead, set the `SOSI_FILES` environment variable to a list of file paths (separated by `:`) before starting Blender.
 
 Please note that the importer uses standard Python logging mechanisms. One of these logging levels can be selected:
 - DEBUG
