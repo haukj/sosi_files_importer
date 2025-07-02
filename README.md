@@ -18,6 +18,8 @@ Currently, this addon has only been tested with Blender 3.0 and the experimental
 
 While certainly possible, it is not recommended to install the addon using the sources directly. Instead, please use the packaged contents in the *Release page*. The packaged zip-file can be directly installed from the *Install...* button in the *Blender Preferences* dialog.
 
+If building from source, a small helper script is included that creates the appropriate zip archive. Run `python3 make_addon_zip.py` from the repository root and install the produced `sosi_files_importer.zip` in Blender.
+
 ## Usage
 
 Initially, the importer has to be enabled via the *Edit/preferences* dialog. It can be found as *Import-Export: SosiImporter*.
