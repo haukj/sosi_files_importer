@@ -39,6 +39,9 @@ bl_info = {
 
 import os
 
+from bpy_extras.io_utils import ImportHelper
+from bpy.props import CollectionProperty, StringProperty
+
 # Determine if the code is running from within Blender
 env_blender = True
 try:
@@ -56,23 +59,29 @@ print('INFO: Blender environment:', env_blender)
 #else:
 #	from . import blender_temporary as bldtmp
 
-from . import sosi_importer as sosimp	
+from . import sosi_importer as sosimp
 #from . import blender_temporary as bldtmp
 
 # -----------------------------------------------------------------------------
 
-def main(context):
-    sosimp.do_imports()
+def main(file_paths=None):
+    sosimp.do_imports(file_paths)
 
 # -----------------------------------------------------------------------------
 
-class ImportSOSIData(bpy.types.Operator):
-    """Tooltip"""
+class ImportSOSIData(bpy.types.Operator, ImportHelper):
+    """Import SOSI data using GDAL."""
     bl_idname = "import_files.sosi_data"
     bl_label = "Import SOSI Data"
 
+    filename_ext = ".sos"
+    filter_glob: StringProperty(default="*.sos", options={'HIDDEN'})
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
+
     def execute(self, context):
-        main(context)
+        directory = os.path.dirname(self.filepath)
+        paths = [os.path.join(directory, f.name) for f in self.files] or [self.filepath]
+        main(paths)
         return {'FINISHED'}
         
 # -----------------------------------------------------------------------------

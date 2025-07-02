@@ -42,3 +42,4 @@ ACT_LOG_LEVEL = logging.INFO
     
 # Number of segments for BUE drawing
 SOSI_ARC_SEGMENTS = 32 # 32 segments over angle Pi (half circle)
+

@@ -28,7 +28,6 @@ import os
 import numpy as np
 import logging
 import platform
-
 try:
     from osgeo import ogr  # noqa
     GDAL_AVAILABLE = True
@@ -254,7 +253,7 @@ def my_cb_func(id, objrefnum, sosires, pobjname, ndims, ncoords, pcoord_ary, pfi
 
 # -----------------------------------------------------------------------------
 
-def do_imports():
+def do_imports(file_list=None):
     
     preferences = bpy.context.preferences
     addon_prefs = preferences.addons[__package__].preferences
@@ -269,6 +268,8 @@ def do_imports():
         logging.error('GDAL Python bindings not available')
         return 0
     from . import sosi_gdal_parser
+    if file_list is None:
+
     env_files = os.environ.get('SOSI_FILES')
     if env_files:
         file_list = env_files.split(os.pathsep)

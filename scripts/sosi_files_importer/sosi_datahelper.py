@@ -52,3 +52,4 @@ def intary_to_trilist(ints, ilen):
     for i in range(0, ilen):
         trilist.append((ints[3 * i], ints[3 * i + 1], ints[3 * i + 2]))
     return trilist
+

@@ -284,5 +284,6 @@ def lock_obj_to_parent(obj):
         obj.lock_scale[0] = True
         obj.lock_scale[1] = True
         obj.lock_scale[2] = True
-        
+
 # -----------------------------------------------------------------------------
+

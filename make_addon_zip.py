@@ -6,6 +6,7 @@ import zipfile
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ADDON_DIR = os.path.join(SCRIPT_DIR, 'scripts', 'sosi_files_importer')
 OUTPUT_ZIP = os.path.join(SCRIPT_DIR, 'sosi_files_importer.zip')
+PARENT_DIR = os.path.dirname(ADDON_DIR)
 
 
 def main():
@@ -15,7 +16,8 @@ def main():
                 if fname.endswith('.pyc'):
                     continue
                 path = os.path.join(root, fname)
-                arcname = os.path.relpath(path, SCRIPT_DIR)
+                arcname = os.path.relpath(path, PARENT_DIR)
+
                 zf.write(path, arcname)
     print(f'Created {OUTPUT_ZIP}')
 
