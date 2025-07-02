@@ -4,11 +4,13 @@ Importer for SOSI files (containing 3D model data) used for geographical informa
 This is an addon for Blender to allow imports of SOSI files (with extension .sos). This addon is intended to handle the data normally contained in so-called 
 "digital maps" available from Norwegian municipal og governmental services.
 
-The add-on was originally written in C++ for Sketchup under 64-bit Windows10. For Blender the appropriate C++ code is compiled into a DLL and called from Python. Thus, this addon is only usable within the Windows environment.
+The add-on was originally written in C++ for Sketchup under 64-bit Windows10. For Blender the appropriate C++ code was compiled into a Windows only DLL and called from Python.
 
-The *scripts/sosi_files_importer/* directory contains the sources for the Python code necessary to interface with the WinDLL. The DLL itself is placed in the sub directory *bin/x64/*.
+For non-Windows platforms the repository now includes a simple Python fallback parser based on the GDAL library. When the DLL cannot be loaded, the addon will try to use GDAL to read SOSI files. The GDAL Python bindings must be installed separately (for instance with `brew install gdal` on macOS).
 
-Currently, this addon has only been tested with Blender 3.0 and the experimental Blender 3.2 under Windows10.
+The *scripts/sosi_files_importer/* directory contains the sources for the Python code as well as the original DLL placed in *bin/x64/*.
+
+Currently, this addon has only been tested with Blender 3.0 and the experimental Blender 3.2 under Windows10, but the GDAL parser has been verified on Linux.
 
 ![Example import](/images/ImportExample_0.png)
 
@@ -31,6 +33,8 @@ The importer will then open a file selection dialog expecting a .txt file with a
 Thereafter the user is asked for one or more SOSI files. Multiple files can be selected in the dialog.
 
 The appropriate SOSI files are then parsed, one by one. For every selected file a dialog will open and show all SOSI element tags present. The user can choose to include/exclude any tags appropriate for the particular import. Default is inclusion of all element tags.
+
+When the GDAL fallback is used the file dialogs are unavailable. Instead, set the `SOSI_FILES` environment variable to a list of file paths (separated by `:`) before starting Blender.
 
 Please note that the importer uses standard Python logging mechanisms. One of these logging levels can be selected:
 - DEBUG

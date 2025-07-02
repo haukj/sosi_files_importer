@@ -31,6 +31,12 @@ import numpy as np
 import ctypes
 from ctypes import wintypes
 import logging
+import platform
+try:
+    from osgeo import ogr  # noqa
+    GDAL_AVAILABLE = True
+except Exception:
+    GDAL_AVAILABLE = False
 from . import sosi_settings as soset
 from . import sosi_log_helper as sologhlp
 from . import sosi_geom_helper as sogeohlp
@@ -288,46 +294,52 @@ def do_imports():
     else:
         rel_path = soset.REL_DLL_PATH
         dll_path = get_full_path(rel_path)
-    
-    my_dll = ctypes.WinDLL(dll_path)
-    
+
+    use_dll = platform.system() == 'Windows' and os.path.exists(dll_path)
+
     #Prototype callback
     callback_type = ctypes.CFUNCTYPE(c_int, c_int, c_int, c_int, c_char_p, c_int, c_int, ctypes.POINTER(c_double), c_char_p)
     my_callback = callback_type(my_cb_func)  # Use a variable to avoid garbage collection
-    
-    # Prototype get_SosiInputObjects()
-    my_dll.get_SosiInputObjects.argtypes = [ctypes.POINTER(c_double), ctypes.POINTER(c_double), ctypes.POINTER(c_double), ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_int, ctypes.c_double]
-    my_dll.get_SosiInputObjects.restype = c_int
-    
-    #Prototype process_SosiFiles()
-    my_dll.process_SosiFiles.argtypes = [c_int, c_void_p]
-    my_dll.process_SosiFiles.restype = c_int
+
+    if use_dll:
+        my_dll = ctypes.WinDLL(dll_path)
+
+        # Prototype get_SosiInputObjects()
+        my_dll.get_SosiInputObjects.argtypes = [ctypes.POINTER(c_double), ctypes.POINTER(c_double), ctypes.POINTER(c_double), ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_int, ctypes.c_double]
+        my_dll.get_SosiInputObjects.restype = c_int
+
+        #Prototype process_SosiFiles()
+        my_dll.process_SosiFiles.argtypes = [c_int, c_void_p]
+        my_dll.process_SosiFiles.restype = c_int
     
     bldscale = 1.0  # bldhlp.LocalUnits.scene_unit_factor() # STRANGE??? Blender takes numbers as m always???
-    #print("Blender scale factor:", bldscale)
     #bldhlp.setMyEnvironment()   # TEMPORARY to set my local environment
-    
+
     peasting = (ctypes.c_double)()
     pnorthing = (ctypes.c_double)()
     punity = (ctypes.c_double)()
     clip_end = bldhlp.SceneSettings.get_clip_end()
-    #unit_system = bpy.context.scene.unit_settings.system
-    #unit_length = bpy.context.scene.unit_settings.length_unit
-    #print(unit_system, unit_length)
     unit_system = bldhlp.UnitSettings.scene_unit_system_get()
     unit_length = bldhlp.UnitSettings.scene_unit_length_get()
     unit_scale = bldhlp.UnitSettings.scene_unit_scale_get()
-    #print(unit_system, unit_length, unit_scale)
- 
-    nfiles = my_dll.get_SosiInputObjects(peasting, pnorthing, punity, bldscale, clip_end, unit_system, unit_length, unit_scale)
-    # print(peasting, pnorthing, punity, nfiles)
-    
-    if (nfiles > 0):
-        res = my_dll.process_SosiFiles(nfiles, my_callback)
-    
-    # Unload the lib so we can change and recompile the lib without restarting the Python environment
-    lib_handle = my_dll._handle
-    #del my_dll
-    free_library(lib_handle)
-    
+
+    if use_dll:
+        nfiles = my_dll.get_SosiInputObjects(peasting, pnorthing, punity, bldscale, clip_end, unit_system, unit_length, unit_scale)
+        if nfiles > 0:
+            my_dll.process_SosiFiles(nfiles, my_callback)
+        lib_handle = my_dll._handle
+        free_library(lib_handle)
+    else:
+        if not GDAL_AVAILABLE:
+            logging.error('GDAL Python bindings not available')
+            return 0
+        from . import sosi_gdal_parser
+        env_files = os.environ.get('SOSI_FILES')
+        if env_files:
+            file_list = env_files.split(os.pathsep)
+        else:
+            pkg_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+            file_list = [os.path.join(pkg_dir, 'test_data', 'SomeBorders.sos')]
+        nfiles = sosi_gdal_parser.process_sosi_files(file_list, my_cb_func)
+
     return nfiles
